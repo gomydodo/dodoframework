@@ -2,7 +2,6 @@
 
 namespace Dodo;
 
-
 class Request{
 	
 }
