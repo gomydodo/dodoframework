@@ -51,7 +51,7 @@ class Request{
 		if(strpos($path, $scriptName) !== false){
 			$path = str_replace($scriptName, "", $path);
 		}
-		return strtolower(trim($path, '/'));
+		return '/'.strtolower(trim($path, '/'));
 	}
 
 	public function getQuery(){

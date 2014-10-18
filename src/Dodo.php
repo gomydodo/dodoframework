@@ -6,21 +6,15 @@ class Dodo{
 
 	private $request;
 	private $response;
+	private $router;
 	private static $app;
-	private $_data;
 	public $actionPath = 'actions';
+	private $methods = ['get', 'post', 'put', 'delete'];
 
 	private function __construct(){
 		$this->request = new Request();
 		$this->response = new Response();
-	}
-
-	public function __set($name, $val){
-		$this->_data[$name] = $val;
-	}
-
-	public function __get($name){
-		return isset($this->_data[$name]) ? $this->_data[$name] : null;
+		$this->router = new Router();
 	}
 
 	public static function app(){
@@ -45,7 +39,8 @@ class Dodo{
 	}
 
 	private function getAction(){
-		$path = $this->request->getPath();
+		$path = trim($this->request->getPath(), '/');
+
 		if($path == ''){
 			$action = 'Home';
 		}else{
@@ -55,6 +50,7 @@ class Dodo{
 		}
 
 		$clsAction = $this->namespace  . "\\{$this->actionPath}\\" . $action;
+
 		if(class_exists($clsAction)){
 			$clsAction = new $clsAction($this->request, $this->response);
 			$method = $this->request->method;
@@ -65,6 +61,41 @@ class Dodo{
 	}
 
 	public function run($config=null){
-		$this->getAction();
+		if(($route = $this->match()) && is_callable($route)){
+			$route($this->request, $this->response);
+		}else{
+			$this->getAction();
+		}
 	}
+
+	public function map($args, $method='get'){
+		$pattern = array_shift($args);
+		$callback = array_pop($args);
+		$this->router->map($pattern, $callback, $method);
+	}
+
+	public function match(){
+		return $this->router->match($this->request);
+	}
+
+	public function get(){
+		$args = func_get_args();
+		$this->map($args, 'get');
+	}
+
+	public function post(){
+		$args = func_get_args();
+		$this->map($args, 'post');
+	}
+
+	public function delete(){
+		$args = func_get_args();
+		$this->map($args, 'delete');
+	}
+
+	public function put(){
+		$args = func_get_args();
+		$this->map($args, 'put');
+	}
+
 }
