@@ -6,7 +6,6 @@ class Dodo{
 
 	private $request;
 	private $response;
-	private $route;
 	private static $app;
 	private $_data;
 	public $actionPath = 'actions';
@@ -22,16 +21,6 @@ class Dodo{
 
 	public function __get($name){
 		return isset($this->_data[$name]) ? $this->_data[$name] : null;
-	}
-
-	public function addRoute(array $route){
-		$this->route->add($route);
-	}
-
-	public function addRoutes(array $routes){
-		foreach($routes as $route){
-			$this->addRoute($route);
-		}
 	}
 
 	public static function app(){
