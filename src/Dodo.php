@@ -2,7 +2,7 @@
 
 namespace Dodo;
 
-class Application{
+class Dodo{
 
 	private $request;
 	private $response;
