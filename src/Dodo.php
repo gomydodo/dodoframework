@@ -10,6 +10,7 @@ class Dodo{
 	private static $app;
 	public $actionPath = 'actions';
 	private $methods = ['get', 'post', 'put', 'delete'];
+	private $config = ['init.file' => 'start.php'];
 
 	private function __construct(){
 		$this->request = new Request();
@@ -60,7 +61,13 @@ class Dodo{
 		}
 	}
 
-	public function run($config=null){
+	public function run($config=array()){
+
+		$conf = array_merge($this->config, $config);
+
+		//include the init file for some url not need create an action
+		include $conf['init.file'];
+
 		if(($route = $this->match()) && is_callable($route)){
 			$route($this->request, $this->response);
 		}else{
