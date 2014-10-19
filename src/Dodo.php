@@ -34,6 +34,7 @@ class Dodo{
 				}
 			});
 			self::$app = new static();
+			self::$app->appPath = $path;
 			self::$app->namespace = $namespace;
 		}
 		return self::$app;
@@ -66,7 +67,7 @@ class Dodo{
 		$conf = array_merge($this->config, $config);
 
 		//include the init file for some url not need create an action
-		include $conf['init.file'];
+		include self::$app->appPath . '/' . $conf['init.file'];
 
 		if(($route = $this->match()) && is_callable($route)){
 			$route($this->request, $this->response);
