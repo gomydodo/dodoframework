@@ -56,7 +56,7 @@ class Dodo{
 		if(class_exists($clsAction)){
 			$clsAction = new $clsAction($this->request, $this->response);
 			$method = $this->request->method;
-			$clsAction->$method($this->request, $this->response);
+			$clsAction->$method();
 		}else{
 			$this->response->notFound();
 		}
