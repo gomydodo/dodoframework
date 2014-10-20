@@ -3,7 +3,8 @@ dodoframework
 
 small framework for php
 
-> 安装方法
+> 1. 安装方法
+
 > composer.json
 > {
 >   requrie:{
