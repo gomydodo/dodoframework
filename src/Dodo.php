@@ -10,7 +10,11 @@ class Dodo{
 	private static $app;
 	public $actionPath = 'actions';
 	private $methods = ['get', 'post', 'put', 'delete'];
-	private $config = ['init.file' => 'start.php'];
+	private $config = [
+		'init.file' => 'start.php',
+		'default.indexAction' => 'Home',
+		'default.indexFile' => 'home',
+	];
 
 	private function __construct(){
 		$this->request = new Request();
