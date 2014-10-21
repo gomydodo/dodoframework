@@ -42,7 +42,6 @@ class Dodo{
 
 	private function getAction(){
 		$path = trim($this->request->getPath(), '/');
-
 		if($path == ''){
 			$action = 'Home';
 		}else{
@@ -50,29 +49,33 @@ class Dodo{
 			$action = ucfirst(array_pop($path));
 			$action = empty($path) ? $action : implode($path, "\\") . "\\" . $action;
 		}
-
 		$clsAction = $this->namespace  . "\\{$this->actionPath}\\" . $action;
 
 		if(class_exists($clsAction)){
 			$clsAction = new $clsAction($this->request, $this->response);
 			$method = $this->request->method;
-			$clsAction->$method();
-		}else{
-			$this->response->notFound();
+			if(method_exists($clsAction, $method)){
+				$clsAction->$method();	
+				return true;
+			}
 		}
+		return false;
+		// $this->response->notFound();
 	}
 
 	public function run($config=array()){
-
 		$conf = array_merge($this->config, $config);
 
 		//include the init file for some url not need create an action
-		include self::$app->appPath . '/' . $conf['init.file'];
+		if(file_exists($initFile = self::$app->appPath . '/' . $conf['init.file']))
+			include $initFile;
 
 		if(($route = $this->match()) && is_callable($route)){
 			$route($this->request, $this->response);
+		}elseif($this->getAction() === true){
+			//do nothing
 		}else{
-			$this->getAction();
+			$this->response->notFound();
 		}
 	}
 
