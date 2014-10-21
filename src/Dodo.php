@@ -38,19 +38,36 @@ class Dodo{
 		if(self::$app === null){
 			$path = realpath($config['app.path']);
 			$namespace = basename($path);
-			spl_autoload_register(function($name) use ($namespace, $path){
-				if(strpos($name, $namespace) === 0){
-					$file  = dirname($path) . '/' . str_replace("\\", "/", $name) . '.php';
-					if(file_exists($file))
-						include $file;
-				}
-			});
+			spl_autoload_register(array(__CLASS__, 'autoload'));
 			self::$app = new static();
 
 			self::$app->config->arrayMerge($config);
 			self::$app->config->set('namespace', $namespace);
 		}
 		return self::$app;
+	}
+
+	public static function autoload($name){
+		static $loadedClass = [];
+
+		$file = '';
+
+		$namespace = self::$app->config->get('namespace');
+		$path = dirname(self::$app->config->get('app.path'));
+
+		if(strpos($name, $namespace) === 0){
+			$file  = $path . '/' . str_replace("\\", "/", $name) . '.php';
+		}
+
+		if(! file_exists($file)){
+			$classPath = str_replace("\\", "/", $name);
+			$file = $path . '/' . dirname($classPath) . '.php';
+		}
+			
+		if(file_exists($file) && !isset($loadedClass[$file])){
+			$loadedClass[$file] = 1;
+			include $file;
+		}
 	}
 
 	private function getAction(){
@@ -67,7 +84,7 @@ class Dodo{
 		if(class_exists($clsAction)){
 			$clsAction = new $clsAction($this->request, $this->response);
 			$method = $this->request->method;
-			if(method_exists($clsAction, $method)){
+			if(in_array($method, $this->methods) && method_exists($clsAction, $method)){
 				$clsAction->$method();	
 				return true;
 			}
