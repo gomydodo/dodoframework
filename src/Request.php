@@ -13,7 +13,6 @@ class Request{
 			'host' => $_SERVER['HTTP_HOST'],
 			'ip' => $_SERVER['REMOTE_ADDR'],
 		);
-
 		$this->init($config);
 	}
 
