@@ -8,27 +8,35 @@ class Dodo{
 	private $response;
 	private $router;
 	private static $app;
-	public $actionPath = 'actions';
-	private $methods = ['get', 'post', 'put', 'delete'];
-	private $config = [
-		'init.file' => 'start.php',
-		'default.indexAction' => 'Home',
-		'default.indexFile' => 'home',
-	];
+	public $methods = ['get', 'post', 'put', 'delete'];
+	private $config;
 
 	private function __construct(){
 		$this->request = new Request();
 		$this->response = new Response();
 		$this->router = new Router();
+		$this->config = $this->defaultConfig();
+	}
+
+	private function defaultConfig(){
+		$config = [
+			'action.path' => 'actions',
+			'action.default' => 'Home',
+			'action.defaultFile' => 'home',
+			'app.path' => './app',
+			'init.file' => 'start',
+			'namespace' => 'app',
+		];
+		return new Collection($config);
 	}
 
 	public static function app(){
 		return self::$app;
 	}
 
-	public static function getInstance($path){
+	public static function getInstance($config=array()){
 		if(self::$app === null){
-			$path = realpath($path);
+			$path = realpath($config['app.path']);
 			$namespace = basename($path);
 			spl_autoload_register(function($name) use ($namespace, $path){
 				if(strpos($name, $namespace) === 0){
@@ -38,8 +46,9 @@ class Dodo{
 				}
 			});
 			self::$app = new static();
-			self::$app->appPath = $path;
-			self::$app->namespace = $namespace;
+
+			self::$app->config->arrayMerge($config);
+			self::$app->config->set('namespace', $namespace);
 		}
 		return self::$app;
 	}
@@ -47,13 +56,13 @@ class Dodo{
 	private function getAction(){
 		$path = trim($this->request->getPath(), '/');
 		if($path == ''){
-			$action = 'Home';
+			$action = $this->config->get('action.default');
 		}else{
 			$path = explode("/", $path);
 			$action = ucfirst(array_pop($path));
 			$action = empty($path) ? $action : implode($path, "\\") . "\\" . $action;
 		}
-		$clsAction = $this->namespace  . "\\{$this->actionPath}\\" . $action;
+		$clsAction = $this->config->get('namespace')  . "\\{$this->config->get('action.path')}\\" . $action;
 
 		if(class_exists($clsAction)){
 			$clsAction = new $clsAction($this->request, $this->response);
@@ -67,11 +76,11 @@ class Dodo{
 		// $this->response->notFound();
 	}
 
-	public function run($config=array()){
-		$conf = array_merge($this->config, $config);
+	public function run(){
+		
 
 		//include the init file for some url not need create an action
-		if(file_exists($initFile = self::$app->appPath . '/' . $conf['init.file']))
+		if(file_exists($initFile = $this->config->get('app.path') . '/' . $this->config->get('init.file') . '.php'))
 			include $initFile;
 
 		if(($route = $this->match()) && is_callable($route)){

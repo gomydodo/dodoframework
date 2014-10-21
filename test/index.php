@@ -1,4 +1,6 @@
 <?php
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-Dodo\Dodo::getInstance(dirname(__DIR__) . '/app')->run();
+
+$config = ['app.path' => dirname(__DIR__) . '/app'];
+Dodo\Dodo::getInstance($config)->run();
