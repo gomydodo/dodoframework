@@ -4,14 +4,15 @@ namespace Dodo;
 
 class Dodo{
 
-	private $request;
-	private $response;
+	public $request;
+	public $response;
 	private $router;
 	private static $app;
-	public $methods = ['get', 'post', 'put', 'delete'];
 	private $config;
 
-	private function __construct(){
+	private function __construct(){}
+
+	public function init(){
 		$this->request = new Request();
 		$this->response = new Response();
 		$this->router = new Router();
@@ -30,6 +31,10 @@ class Dodo{
 		return new Collection($config);
 	}
 
+	public function getConfig($name){
+		return $this->config->get($name);
+	}
+
 	public static function app(){
 		return self::$app;
 	}
@@ -40,16 +45,16 @@ class Dodo{
 			$namespace = basename($path);
 			spl_autoload_register(array(__CLASS__, 'autoload'));
 			self::$app = new static();
-
+			self::$app->init();
 			self::$app->config->arrayMerge($config);
 			self::$app->config->set('namespace', $namespace);
 		}
+
 		return self::$app;
 	}
 
 	public static function autoload($name){
 		static $loadedClass = [];
-
 		$file = '';
 
 		$namespace = self::$app->config->get('namespace');
@@ -70,40 +75,15 @@ class Dodo{
 		}
 	}
 
-	private function getAction(){
-		$path = trim($this->request->getPath(), '/');
-		if($path == ''){
-			$action = $this->config->get('action.default');
-		}else{
-			$path = explode("/", $path);
-			$action = ucfirst(array_pop($path));
-			$action = empty($path) ? $action : implode($path, "\\") . "\\" . $action;
-		}
-		$clsAction = $this->config->get('namespace')  . "\\{$this->config->get('action.path')}\\" . $action;
-
-		if(class_exists($clsAction)){
-			$clsAction = new $clsAction($this->request, $this->response);
-			$method = $this->request->method;
-			if(in_array($method, $this->methods) && method_exists($clsAction, $method)){
-				$clsAction->$method();	
-				return true;
-			}
-		}
-		return false;
-		// $this->response->notFound();
-	}
-
 	public function run(){
-		
 
 		//include the init file for some url not need create an action
-		if(file_exists($initFile = $this->config->get('app.path') . '/' . $this->config->get('init.file') . '.php'))
+		if(file_exists($initFile = $this->config->get('app.path') . '/' 
+			. $this->config->get('init.file') . '.php'))
 			include $initFile;
 
-		if(($route = $this->match()) && is_callable($route)){
+		if(($route = $this->router->match()) && is_callable($route)){
 			$route($this->request, $this->response);
-		}elseif($this->getAction() === true){
-			//do nothing
 		}else{
 			$this->response->notFound();
 		}
@@ -113,10 +93,6 @@ class Dodo{
 		$pattern = array_shift($args);
 		$callback = array_pop($args);
 		$this->router->map($pattern, $callback, $method);
-	}
-
-	public function match(){
-		return $this->router->match($this->request);
 	}
 
 	public function get(){
