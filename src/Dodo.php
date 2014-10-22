@@ -4,76 +4,86 @@ namespace Dodo;
 
 class Dodo{
 
-	private $request;
-	private $response;
+	public $request;
+	public $response;
 	private $router;
 	private static $app;
-	public $actionPath = 'actions';
-	private $methods = ['get', 'post', 'put', 'delete'];
-	private $config = ['init.file' => 'start.php'];
+	private $config;
 
-	private function __construct(){
+	private function __construct(){}
+
+	public function init(){
 		$this->request = new Request();
 		$this->response = new Response();
 		$this->router = new Router();
+		$this->config = $this->defaultConfig();
+	}
+
+	private function defaultConfig(){
+		$config = [
+			'action.path' => 'actions',
+			'action.default' => 'Home',
+			'action.defaultFile' => 'home',
+			'app.path' => './app',
+			'init.file' => 'start',
+			'namespace' => 'app',
+		];
+		return new Collection($config);
+	}
+
+	public function getConfig($name){
+		return $this->config->get($name);
 	}
 
 	public static function app(){
 		return self::$app;
 	}
 
-	public static function getInstance($path){
+	public static function getInstance($config=array()){
 		if(self::$app === null){
-			$path = realpath($path);
+			$path = realpath($config['app.path']);
 			$namespace = basename($path);
-			spl_autoload_register(function($name) use ($namespace, $path){
-				if(strpos($name, $namespace) === 0){
-					$file  = dirname($path) . '/' . str_replace("\\", "/", $name) . '.php';
-					if(file_exists($file))
-						include $file;
-				}
-			});
+			spl_autoload_register(array(__CLASS__, 'autoload'));
 			self::$app = new static();
-			self::$app->appPath = $path;
-			self::$app->namespace = $namespace;
+			self::$app->init();
+			self::$app->config->arrayMerge($config);
+			self::$app->config->set('namespace', $namespace);
 		}
+
 		return self::$app;
 	}
 
-	private function getAction(){
-		$path = trim($this->request->getPath(), '/');
-		if($path == ''){
-			$action = 'Home';
-		}else{
-			$path = explode("/", $path);
-			$action = ucfirst(array_pop($path));
-			$action = empty($path) ? $action : implode($path, "\\") . "\\" . $action;
-		}
-		$clsAction = $this->namespace  . "\\{$this->actionPath}\\" . $action;
+	public static function autoload($name){
+		static $loadedClass = [];
+		$file = '';
 
-		if(class_exists($clsAction)){
-			$clsAction = new $clsAction($this->request, $this->response);
-			$method = $this->request->method;
-			if(method_exists($clsAction, $method)){
-				$clsAction->$method();	
-				return true;
-			}
+		$namespace = self::$app->config->get('namespace');
+		$path = dirname(self::$app->config->get('app.path'));
+
+		if(strpos($name, $namespace) === 0){
+			$file  = $path . '/' . str_replace("\\", "/", $name) . '.php';
 		}
-		return false;
-		// $this->response->notFound();
+
+		if(! file_exists($file)){
+			$classPath = str_replace("\\", "/", $name);
+			$file = $path . '/' . dirname($classPath) . '.php';
+		}
+			
+		if(file_exists($file) && !isset($loadedClass[$file])){
+			$loadedClass[$file] = 1;
+			include $file;
+		}
 	}
 
-	public function run($config=array()){
-		$conf = array_merge($this->config, $config);
+	public function run(){
 
 		//include the init file for some url not need create an action
-		if(file_exists($initFile = self::$app->appPath . '/' . $conf['init.file']))
+		if(file_exists($initFile = $this->config->get('app.path') . '/' 
+			. $this->config->get('init.file') . '.php'))
 			include $initFile;
 
-		if(($route = $this->match()) && is_callable($route)){
+		if(($route = $this->router->match()) && is_callable($route)){
 			$route($this->request, $this->response);
-		}elseif($this->getAction() === true){
-			//do nothing
 		}else{
 			$this->response->notFound();
 		}
@@ -83,10 +93,6 @@ class Dodo{
 		$pattern = array_shift($args);
 		$callback = array_pop($args);
 		$this->router->map($pattern, $callback, $method);
-	}
-
-	public function match(){
-		return $this->router->match($this->request);
 	}
 
 	public function get(){
