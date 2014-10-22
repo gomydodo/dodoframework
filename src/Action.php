@@ -1,7 +1,6 @@
 <?php
 
 namespace Dodo;
-use Dodo\View;
 
 class Action{
 

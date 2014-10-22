@@ -43,22 +43,22 @@ class Response{
 		if((in_array(substr($file, 0,1), array('\\','/'))))
 			$file = substr($file, 1);
 		
-        if ((substr($file, -4) != '.php'))
-            $file .= '.php';
+		if ((substr($file, -4) != '.php'))
+			$file .= '.php';
 
-        $this->template =  $path.'/'.$view.'/'.$file;
+		$this->template =  $path.'/'.$view.'/'.$file;
 
-        if (!file_exists($this->template)){
-            throw new \Exception("Template file not found: {$this->template}.");
-        }
+		if (!file_exists($this->template)){
+	    		throw new \Exception("Template file not found: {$this->template}.");
+		}
 
-        if (is_array($data)) {
-            $this->vars = array_merge($this->vars, $data);
-        }
+		if (is_array($data)) {
+		    	$this->vars = array_merge($this->vars, $data);
+		}
 
-        extract($this->vars);
+		extract($this->vars);
 
-        include $this->template;
+		include $this->template;
 	}
 
 }
