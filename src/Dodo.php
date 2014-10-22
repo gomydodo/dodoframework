@@ -13,7 +13,7 @@ class Dodo{
 
 	private function __construct(array $config){
 		self::$app = $this;
-		
+
 		$path = realpath($config['app.path']);
 		$namespace = basename($path);
 		$config['namespace'] = $namespace;
@@ -52,8 +52,8 @@ class Dodo{
 
 	public static function getInstance($config=array()){
 		if(self::$app === null){
-			self::$app = new static($config);
 			spl_autoload_register(array(__CLASS__, 'autoload'));
+			return new static($config);
 		}
 
 		return self::$app;
