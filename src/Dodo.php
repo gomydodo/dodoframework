@@ -8,18 +8,22 @@ class Dodo{
 	public $response;
 	private $router;
 	private $view;
-	private static $app;
+	private static $app = null;
 	private $config;
 
 	private function __construct(array $config){
 		self::$app = $this;
-		$this->init();
+		
+		$path = realpath($config['app.path']);
+		$namespace = basename($path);
+		$config['namespace'] = $namespace;
 		$this->config = $this->defaultConfig();
 		$this->config->arrayMerge($config);
 		$this->config->set('namespace', $config['namespace']);
+		$this->init();
 	}
 
-	public function init(){
+	private function init(){
 		$this->request = new Request();
 		$this->response = new Response();
 		$this->router = new Router();
@@ -48,11 +52,8 @@ class Dodo{
 
 	public static function getInstance($config=array()){
 		if(self::$app === null){
-			$path = realpath($config['app.path']);
-			$namespace = basename($path);
-			$config['namespace'] = $namespace;
+			self::$app = new static($config);
 			spl_autoload_register(array(__CLASS__, 'autoload'));
-			return new static($config);
 		}
 
 		return self::$app;
