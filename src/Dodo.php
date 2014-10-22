@@ -7,7 +7,6 @@ class Dodo{
 	public $request;
 	public $response;
 	private $router;
-	public $view;
 	private static $app = null;
 	private $config;
 
@@ -27,7 +26,6 @@ class Dodo{
 		$this->request = new Request();
 		$this->response = new Response();
 		$this->router = new Router();
-		$this->view = new View($this->getConfig('app.path'));
 	}
 
 	private function defaultConfig(){
@@ -38,6 +36,7 @@ class Dodo{
 			'app.path' => './app',
 			'init.file' => 'start',
 			'namespace' => 'app',
+			'view.path'=>'views',
 		];
 		return new Collection($config);
 	}
@@ -82,7 +81,7 @@ class Dodo{
 	}
 
 	public function run(){
-
+		
 		//include the init file for some url not need create an action
 		if(file_exists($initFile = $this->config->get('app.path') . '/' 
 			. $this->config->get('init.file') . '.php'))
@@ -93,10 +92,7 @@ class Dodo{
 		}else{
 			$this->response->notFound();
 		}
-	}
 
-	public function render($file, $data){
-		$this->view->render($file, $data);
 	}
 
 	public function map($args, $method='get'){
