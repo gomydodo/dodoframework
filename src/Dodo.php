@@ -11,14 +11,21 @@ class Dodo{
 	private static $app;
 	private $config;
 
-	private function __construct(){}
+	private function __construct(array $config){
+		self::$app = $this;
+		$this->init();
+		$this->config = $this->defaultConfig();
+		$this->config->arrayMerge($config);
+		$this->config->set('namespace', $config['namespace']);
+	}
 
 	public function init(){
 		$this->request = new Request();
 		$this->response = new Response();
 		$this->router = new Router();
-		
+	
 		$this->config = $this->defaultConfig();
+
 		$this->view = new View();
 	}
 
@@ -46,11 +53,9 @@ class Dodo{
 		if(self::$app === null){
 			$path = realpath($config['app.path']);
 			$namespace = basename($path);
+			$config['namespace'] = $namespace;
 			spl_autoload_register(array(__CLASS__, 'autoload'));
-			self::$app = new static();
-			self::$app->init();
-			self::$app->config->arrayMerge($config);
-			self::$app->config->set('namespace', $namespace);
+			return new static($config);
 		}
 
 		return self::$app;
@@ -64,17 +69,17 @@ class Dodo{
 		$path = dirname(self::$app->config->get('app.path'));
 
 		if(strpos($name, $namespace) === 0){
-			$file  = $path . '/' . str_replace("\\", "/", $name) . '.php';
-		}
 
-		if(! file_exists($file)){
-			$classPath = str_replace("\\", "/", $name);
-			$file = $path . '/' . dirname($classPath) . '.php';
-		}
-			
-		if(file_exists($file) && !isset($loadedClass[$file])){
-			$loadedClass[$file] = 1;
-			include $file;
+			$file  = $path . '/' . str_replace("\\", "/", $name) . '.php';
+			if(! file_exists($file)){
+				$classPath = str_replace("\\", "/", $name);
+				$file = $path . '/' . dirname($classPath) . '.php';
+			}
+
+			if(file_exists($file) && !isset($loadedClass[$file])){
+				$loadedClass[$file] = 1;
+				include $file;
+			}
 		}
 	}
 
