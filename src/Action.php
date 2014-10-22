@@ -12,14 +12,18 @@ class Action{
 	}
 
 	final public function render($file=null, $param=array()){
-		Dodo::app()->render($file, $param, $this->vars);
+		View::app()->render($file, $param, $this->vars);
 	}
 
 	final public function setAttr($key=null, $value=null){
 		$this->vars[$key] = $value;
 	}
 
-	final public function getAttr($key=null){
+	public function __set($key, $val){
+		$this->setAttr($key, $val);
+	}
+
+	public function __get($key){
 		return isset($this->vars[$key]) ? $this->vars[$key] : null;
 	}
 

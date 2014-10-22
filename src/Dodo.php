@@ -7,7 +7,7 @@ class Dodo{
 	public $request;
 	public $response;
 	private $router;
-	private $view;
+	public $view;
 	private static $app;
 	private $config;
 
@@ -25,7 +25,6 @@ class Dodo{
 		$this->router = new Router();
 	
 		$this->config = $this->defaultConfig();
-
 		$this->view = new View();
 	}
 
@@ -95,11 +94,6 @@ class Dodo{
 		}else{
 			$this->response->notFound();
 		}
-	}
-
-	public  function render(){
-
-		$this->view->render(func_get_args());
 	}
 
 	// public function view()

@@ -11,11 +11,19 @@ class View{
 
 	private $path = '';
 
+	private static $app = null;
+
 	private $config = array();
 
 	public function __construct($path='.'){
+		self::$app = $this;
 		$this->path = $path;
 		$this->defaultConfig();
+	}
+
+	public static function app(){
+		new View();
+		return self::$app;
 	}
 
 	public function defaultConfig(){
@@ -28,16 +36,8 @@ class View{
 		return isset($this->config[$key]) ? $this->config[$key] : null;
 	}
 
-	public function render($args){
-		// echo '<Br>';
-		self::setRenderVars($args);
+	public function render($args=array()){
 		echo 'view/render';
-	}
-
-	private function setRenderVars($args){
-		$this->file = $args[0];
-		$this->param = $args[1];
-		$this->vars = $args[2];
 	}
 
 	public function get(){
