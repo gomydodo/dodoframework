@@ -11,8 +11,8 @@ class Action{
 		$this->response = $res;
 	}
 
-	final public function render($file=null, $param=array()){
-		View::app()->render($file, $param, $this->vars);
+	final public function render($file=null, $data=null){
+		Dodo::app()->render($file, $data);
 	}
 
 	final public function setAttr($key=null, $value=null){

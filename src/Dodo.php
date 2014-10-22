@@ -7,7 +7,7 @@ class Dodo{
 	public $request;
 	public $response;
 	private $router;
-	private $view;
+	public $view;
 	private static $app = null;
 	private $config;
 
@@ -27,7 +27,7 @@ class Dodo{
 		$this->request = new Request();
 		$this->response = new Response();
 		$this->router = new Router();
-		$this->view = new View();
+		$this->view = new View($this->getConfig('app.path'));
 	}
 
 	private function defaultConfig(){
@@ -95,11 +95,8 @@ class Dodo{
 		}
 	}
 
-	public  function render($args=array()){
-		// var_dump($args);
-		// $view = new View();
-		// $view->render();
-		echo 'dodo/render';
+	public function render($file, $data){
+		$this->view->render($file, $data);
 	}
 
 	// public function view()
