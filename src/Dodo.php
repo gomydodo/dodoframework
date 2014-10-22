@@ -99,8 +99,6 @@ class Dodo{
 		$this->view->render($file, $data);
 	}
 
-	// public function view()
-
 	public function map($args, $method='get'){
 		$pattern = array_shift($args);
 		$callback = array_pop($args);
