@@ -17,9 +17,9 @@ class Dodo{
 		$this->request = new Request();
 		$this->response = new Response();
 		$this->router = new Router();
-		$this->view = new View();
-
+		
 		$this->config = $this->defaultConfig();
+		$this->view = new View();
 	}
 
 	private function defaultConfig(){
@@ -92,11 +92,9 @@ class Dodo{
 		}
 	}
 
-	public  function render($args=array()){
-		// var_dump($args);
-		// $view = new View();
-		// $view->render();
-		echo 'dodo/render';
+	public  function render(){
+
+		$this->view->render(func_get_args());
 	}
 
 	// public function view()
