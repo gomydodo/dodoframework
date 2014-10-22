@@ -17,7 +17,7 @@ class Response{
 		return $this;
 	}
 
-	public function write($data){
+	public function write($data=''){
 		$this->body .= $data;
 		return $this;
 	}

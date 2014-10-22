@@ -7,6 +7,7 @@ class Dodo{
 	private $request;
 	private $response;
 	private $router;
+	private $view;
 	private static $app;
 	public $actionPath = 'actions';
 	private $methods = ['get', 'post', 'put', 'delete'];
@@ -16,6 +17,7 @@ class Dodo{
 		$this->request = new Request();
 		$this->response = new Response();
 		$this->router = new Router();
+		// $this->view = new View();
 	}
 
 	public static function app(){
@@ -78,6 +80,15 @@ class Dodo{
 			$this->response->notFound();
 		}
 	}
+
+	public  function render($args=array()){
+		// var_dump($args);
+		// $view = new View();
+		// $view->render();
+		echo 'dodo/render';
+	}
+
+	// public function view()
 
 	public function map($args, $method='get'){
 		$pattern = array_shift($args);
