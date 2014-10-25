@@ -2,9 +2,8 @@
 
 namespace Dodo;
 
-class Request{
+class Request extends Collection{
 
-	private $data = array();
 	
 	public function __construct(){
 		$config = array(
@@ -14,14 +13,6 @@ class Request{
 			'ip' => $_SERVER['REMOTE_ADDR'],
 		);
 		$this->init($config);
-	}
-
-	public function __set($name, $val){
-		$this->data[$name] = $val;
-	}
-
-	public function __get($name){
-		return isset($this->data[$name]) ? $this->data[$name] : null;
 	}
 
 	private function init($config){
