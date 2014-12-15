@@ -37,6 +37,8 @@ class Request extends Collection{
 		$scriptName = $_SERVER['SCRIPT_NAME'];
 		$queryUri = $_SERVER['REQUEST_URI'];
 		$queryString = $_SERVER['QUERY_STRING'];
+		if(($pos = strpos($queryString, '?')) !==false)
+			$queryString = substr($queryString, $pos + 1);
 		$path = str_replace("?" . $queryString, "", $queryUri);
 		if(strpos($path, $scriptName) !== false){
 			$path = str_replace($scriptName, "", $path);
