@@ -59,7 +59,7 @@ class Dodo{
 	}
 
 	public static function autoload($name){
-		static $loadedClass = [];
+		static $loadedClass = array();
 		$file = '';
 
 		$namespace = self::$app->config->get('namespace');
