@@ -29,7 +29,7 @@ class Dodo{
 	}
 
 	private function defaultConfig(){
-		$config = [
+		$config = array(
 			'action.path' => 'actions',
 			'action.default' => 'Home',
 			'action.defaultFile' => 'home',
@@ -37,7 +37,7 @@ class Dodo{
 			'init.file' => 'start',
 			'namespace' => 'app',
 			'view.path'=>'views',
-		];
+		);
 		return new Collection($config);
 	}
 

@@ -4,9 +4,9 @@ namespace Dodo;
 
 class Router{
 
-	private $_map = [];
+	private $_map = array();
 	private $app;
-	public $methods = ['get', 'post', 'put', 'delete'];
+	public $methods = array('get', 'post', 'put', 'delete');
 
 	public function __construct(){
 		$this->app = Dodo::app();
